@@ -21,7 +21,7 @@ def drive(cfg, stream_ip):
 	steering_controller = PCA9685(
 		channel=cfg.STEERING_CHANNEL,
 		address=cfg.PCA9685_I2C_ADDR,
-		busnum=cfg.PCA9685_I2C_BUSNUM
+		busnum=1
 	)
 	steering = PWMSteering(
 		controller=steering_controller,
@@ -37,7 +37,7 @@ def drive(cfg, stream_ip):
 	throttle_controller = PCA9685(
 		channel=cfg.THROTTLE_CHANNEL,
 		address=cfg.PCA9685_I2C_ADDR,
-		busnum=cfg.PCA9685_I2C_BUSNUM
+		busnum=1
 	)
 	throttle = PWMThrottle(
 		controller=throttle_controller,

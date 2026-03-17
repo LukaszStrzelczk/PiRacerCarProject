@@ -6,26 +6,37 @@ class CameraStreamer:
 		self.target_ip = target_ip
 		self.target_port = target_port
 		self.process = None
+		self.rpicam_process = None
 		self.on = True
 
 	def update(self):
-		cmd = [
-			'ffmpeg',
-			'-f', 'v4l2',
-			'-input_format', 'mjpeg',
-			'-video_size', '1280x720',
-			'-framerate', '30',
-			'-i', '/dev/video0',
-            		'-c:v', 'copy',
-            		'-flush_packets', '0',
-            		'-max_delay', '200000',
-            		'-buffer_size', '2000000',
-            		'-f', 'rtp',
-            		f'rtp://{self.target_ip}:{self.target_port}'
-		]
+		self.rpicam_process = subprocess.Popen(
+			[
+				'rpicam-vid',
+				'--width', '640',
+				'--height', '480',
+				'--framerate', '30',
+				'--codec', 'mjpeg',
+				'-t', '0',
+				'-o', '-'
+			],
+			stdout=subprocess.PIPE,
+			stderr=subprocess.DEVNULL
+		)
 
 		self.process = subprocess.Popen(
-			cmd,
+			[
+				'ffmpeg',
+				'-f', 'mjpeg',
+				'-i', '-',
+				'-c:v', 'copy',
+				'-flush_packets', '0',
+				'-max_delay', '200000',
+				'-buffer_size', '2000000',
+				'-f', 'rtp',
+				f'rtp://{self.target_ip}:{self.target_port}'
+			],
+			stdin=self.rpicam_process.stdout,
 			stdout=subprocess.DEVNULL,
 			stderr=subprocess.DEVNULL
 		)
@@ -33,7 +44,6 @@ class CameraStreamer:
 		self.process.wait()
 
 	def run_threaded(self):
-		"""No output needed, just keeps the stream running."""
 		pass
 
 	def shutdown(self):
@@ -41,3 +51,6 @@ class CameraStreamer:
 		if self.process:
 			self.process.terminate()
 			self.process.wait()
+		if self.rpicam_process:
+			self.rpicam_process.terminate()
+			self.rpicam_process.wait()
