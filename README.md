@@ -46,30 +46,43 @@ python car.py --stream-ip <desktop-ip>
 
 This starts the WebSocket server (default port 8765) for steering/throttle input and streams camera via RTP to the specified desktop IP (port 5000).
 
+The Driver app should send JSON control messages repeatedly while connected:
 
+```json
+{
+  "steering": 0.0,
+  "throttle": 0.3,
+  "reverse": false
+}
+```
+
+Values are clamped to `-1.0..1.0`. Reverse can be requested by sending a negative `throttle`, by setting `"reverse": true`, or by sending `"direction": "reverse"` / `"gear": "reverse"`. When reverse is requested with a positive throttle, the car converts it to a negative throttle before passing it to DonkeyCar.
+
+For safety, the car forces steering and throttle to `0.0` when the Driver disconnects, sends an invalid command, or stops sending commands for longer than `WEBSOCKET_COMMAND_TIMEOUT`.
 
 ## Configuration
 
 All car settings are in `config.py`. Override any value in `myconfig.py` (uncomment the relevant lines). Key settings:
 
-- `STEERING_CHANNEL` / `THROTTLE_CHANNEL` — PCA9685 PWM channels
-- `STEERING_LEFT_PWM` / `STEERING_RIGHT_PWM` — steering pulse range
-- `THROTTLE_FORWARD_PWM` / `THROTTLE_STOPPED_PWM` / `THROTTLE_REVERSE_PWM` — throttle pulse range
-- `WEBSOCKET_HOST` / `WEBSOCKET_PORT` — WebSocket server bind address
-- `CAMERA_STREAM_PORT` — RTP camera stream port
-- `PCA9685_I2C_ADDR` — I2C address of the PWM board
+- `STEERING_CHANNEL` / `THROTTLE_CHANNEL` - PCA9685 PWM channels
+- `STEERING_LEFT_PWM` / `STEERING_RIGHT_PWM` - steering pulse range
+- `THROTTLE_FORWARD_PWM` / `THROTTLE_STOPPED_PWM` / `THROTTLE_REVERSE_PWM` - throttle pulse range
+- `WEBSOCKET_HOST` / `WEBSOCKET_PORT` - WebSocket server bind address
+- `WEBSOCKET_COMMAND_TIMEOUT` - failsafe timeout in seconds before controls are forced to stop
+- `CAMERA_STREAM_PORT` - RTP camera stream port
+- `PCA9685_I2C_ADDR` - I2C address of the PWM board
 
 ## Project Structure
 
-```
+```text
 PiRacerCarProject/
-├── car.py                  # Main drive script (WebSocket + camera stream)
-├── calibrate.py            # Steering/throttle calibration via web UI
-├── train.py                # Model training script
-├── config.py               # Default car configuration
-├── myconfig.py             # User overrides (uncomment as needed)
-├── webSocketController.py  # WebSocket server for remote control
-├── cameraStream.py         # RTP camera streamer using ffmpeg
-├── data/                   # Training data (tubs)
-└── models/                 # Trained models
+|-- car.py                  # Main drive script (WebSocket + camera stream)
+|-- calibrate.py            # Steering/throttle calibration via web UI
+|-- train.py                # Model training script
+|-- config.py               # Default car configuration
+|-- myconfig.py             # User overrides (uncomment as needed)
+|-- webSocketController.py  # WebSocket server for remote control
+|-- cameraStream.py         # RTP camera streamer using ffmpeg
+|-- data/                   # Training data (tubs)
+`-- models/                 # Trained models
 ```

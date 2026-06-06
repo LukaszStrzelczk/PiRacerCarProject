@@ -347,6 +347,7 @@
 # # Websocket values
 WEBSOCKET_HOST = '0.0.0.0'
 WEBSOCKET_PORT = 8765
+WEBSOCKET_COMMAND_TIMEOUT = 0.5
 # 
 # # Camera stream port
 CAMERA_STREAM_PORT = 5000
