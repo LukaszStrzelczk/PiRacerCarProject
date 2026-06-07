@@ -348,3 +348,11 @@ REALSENSE_D435_ID = None        # serial number of camera or None if you only ha
 STOP_SIGN_DETECTOR = False
 STOP_SIGN_MIN_SCORE = 0.2
 STOP_SIGN_SHOW_BOUNDING_BOX = True
+
+#WEBSOCKET CONTROL
+WEBSOCKET_HOST = '0.0.0.0'
+WEBSOCKET_PORT = 8765
+WEBSOCKET_COMMAND_TIMEOUT = 0.5    # seconds without a command before throttle is forced to zero
+
+# Camera stream port
+CAMERA_STREAM_PORT = 5000

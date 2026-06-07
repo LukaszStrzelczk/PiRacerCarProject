@@ -11,7 +11,11 @@ def drive(cfg, stream_ip):
 	cam = CameraStreamer(target_ip=stream_ip, target_port=cfg.CAMERA_STREAM_PORT)
 	v.add(cam, threaded=True)
 
-	ws_controller = WebSocketController(host=cfg.WEBSOCKET_HOST, port=cfg.WEBSOCKET_PORT)
+	ws_controller = WebSocketController(
+		host=cfg.WEBSOCKET_HOST,
+		port=cfg.WEBSOCKET_PORT,
+		command_timeout=getattr(cfg, 'WEBSOCKET_COMMAND_TIMEOUT', 0.5)
+	)
 	v.add(
 		ws_controller,
 		outputs=['steering', 'throttle'],
